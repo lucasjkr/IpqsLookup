@@ -1,9 +1,8 @@
-import argparse
+#!/usr/bin/python3
 import json
-from dotenv import dotenv_values
 from requests_cache import CachedSession
+from dotenv import dotenv_values
 from datetime import timedelta
-from argparse import ArgumentParser
 import logging
 
 class IPQualityScore:
@@ -72,6 +71,7 @@ class IPQualityScore:
         print(json.dumps(result, indent=4))
 
 if __name__ == "__main__":
+    import argparse
     ipqs = IPQualityScore()
 
     arg = argparse.ArgumentParser()
