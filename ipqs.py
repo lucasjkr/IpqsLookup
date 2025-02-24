@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-import json
+import json, os
+from pathlib import Path
+import requests_cache
 from requests_cache import CachedSession
 from dotenv import dotenv_values
 from datetime import timedelta
@@ -9,7 +11,9 @@ class IPQualityScore:
     ip = str
 
     def __init__(self):
-        self.session = CachedSession('requests', backend='sqlite', allowable_methods=("GET"))
+        self.app_path = Path(__file__).parent
+
+        self.session = CachedSession(f"{self.app_path}{os.sep}requests", backend="sqlite", allowable_methods=("GET"))
         self.session.settings.expire_after = timedelta(weeks=1)
         self.session.settings.stale_if_error = True
 
@@ -50,23 +54,26 @@ class IPQualityScore:
         }
 
     def report(self):
-        return self.session.get(f"https://www.ipqualityscore.com/api/json/report/{self.config['IPQS_API_LEY']}?ip={self.ip}").json()
+        return self.session.get(f"https://www.ipqualityscore.com/api/json/report/{self.config['IPQS_API_KEY']}?ip={self.ip}").json()
 
 if __name__ == "__main__":
     import argparse
     ipqs = IPQualityScore()
 
     arg = argparse.ArgumentParser()
-    arg.add_argument('action', help='can be lookup or report')
-    arg.add_argument('ip_address', help='IP Address to lookup')
+    arg.add_argument('action', help="can be either 'lookup' or 'report'")
+    arg.add_argument('ip_address', help="IP Address to lookup")
     a = arg.parse_args()
 
     ipqs.ip = a.ip_address
     action = a.action
 
     if action == "lookup":
-        print(f"{json.dumps(ipqs.lookup(), indent=4)}")
+        result = ipqs.lookup()
     elif action == "report":
-        print(f"{json.dumps(ipqs.report(), indent=4)}")
+        result = ipqs.report()
+
+    if result:
+        print(json.dumps(result, indent=4))
     else:
         print("No result found")
