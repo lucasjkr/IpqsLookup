@@ -57,7 +57,7 @@ if __name__ == "__main__":
     ipqs = IPQualityScore()
 
     arg = argparse.ArgumentParser()
-    arg.add_argument('action', help='IP Address to lookup')
+    arg.add_argument('action', help='can be lookup or report')
     arg.add_argument('ip_address', help='IP Address to lookup')
     a = arg.parse_args()
 
@@ -65,11 +65,8 @@ if __name__ == "__main__":
     action = a.action
 
     if action == "lookup":
-        result = ipqs.lookup()
+        print(f"{json.dumps(ipqs.lookup(), indent=4)}")
     elif action == "report":
-        result = ipqs.report()
-
-    if result:
-        print(json.dumps(result, indent=4))
+        print(f"{json.dumps(ipqs.report(), indent=4)}")
     else:
         print("No result found")
